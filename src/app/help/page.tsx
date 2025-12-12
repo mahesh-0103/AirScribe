@@ -18,9 +18,9 @@ export default function HelpPage() {
                     <CardContent>
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem value="item-1">
-                                <AccordionTrigger>What is AirScribe PRO?</AccordionTrigger>
+                                <AccordionTrigger>What is AirScribe ?</AccordionTrigger>
                                 <AccordionContent>
-                                    AirScribe PRO is a powerful AI tool that helps you process and summarize text. You can customize the tone, quality, and length of the output to fit your needs.
+                                    AirScribe is a powerful AI tool that helps you process and summarize text. You can customize the tone, quality, and length of the output to fit your needs.
                                 </AccordionContent>
                             </AccordionItem>
                             <AccordionItem value="item-2">

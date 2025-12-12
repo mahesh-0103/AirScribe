@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+peft
+transformers
+torch
+pandas
+numpy
+datasets
+re

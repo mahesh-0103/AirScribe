@@ -44,7 +44,7 @@ export default function PlagiarismPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          domain: "GENERAL_NEWS", // Use a default domain for plagiarism check
+          domain: "GENERAL_NEWS",
           text: text,
           quality: "High",
           length: "Medium",
@@ -54,15 +54,15 @@ export default function PlagiarismPage() {
 
       const data = await response.json();
       
-      // Mocking the segments for UI highlighting since backend returns string
-      // In a real scenario, your backend should return these segments
+      // MOCK: Replace with actual backend parsing to get plagiarized segments
       setResult({
         originalText: text,
-        plagiarizedSegments: [], // Backend needs to be updated to provide specific segments
+        plagiarizedSegments: [],
         score: 95
       });
     } catch (error) {
       console.error("API Error:", error);
+      // NOTE: The 429 error must be fixed by quota increase or backoff in the backend/action file
     } finally {
       setIsLoading(false);
     }
@@ -121,17 +121,20 @@ export default function PlagiarismPage() {
   };
 
   return (
-    <div className="flex-1 p-4 h-[calc(100vh-80px)] overflow-hidden bg-muted/30">
+    // Grid Container: Set height to 60vh (60% of viewport height)
+    <div className="flex-1 p-4 h-[60vh] overflow-hidden bg-muted/30"> 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full items-stretch">
-        <Card className="flex flex-col shadow-xl border-none">
+        
+        {/* Input Panel (Left) */}
+        <Card className="flex flex-col shadow-xl border-none h-full"> 
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><ShieldCheck className="text-primary"/> Plagiarism Checker</CardTitle>
             <CardDescription>Enter text to identify and remove potential plagiarism.</CardDescription>
           </CardHeader>
-          <CardContent className="flex-1 flex flex-col space-y-4">
+          <CardContent className="flex-1 flex flex-col space-y-4"> 
             <Textarea
               placeholder="Paste your content..."
-              className="flex-1 resize-none bg-white text-base p-4"
+              className="flex-1 resize-none bg-white text-base p-4 min-h-[150px]"
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
@@ -145,7 +148,8 @@ export default function PlagiarismPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col shadow-xl border-none bg-card/80 backdrop-blur-sm">
+        {/* Output Panel (Right) */}
+        <Card className="flex flex-col shadow-xl border-none bg-card/80 backdrop-blur-sm h-full"> 
           <CardHeader>
             <CardTitle>Analysis & Suggestions</CardTitle>
             {result && <div className="flex items-center gap-2">Score: <Badge>{result.score}%</Badge></div>}
@@ -160,6 +164,9 @@ export default function PlagiarismPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
+  );
+}
     </div>
   );
 }

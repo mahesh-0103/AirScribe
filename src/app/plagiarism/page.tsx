@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { LoaderCircle, ShieldCheck, Wand2, ArrowRight } from "lucide-react";
+import { LoaderCircle, ShieldCheck, Wand2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -19,40 +19,48 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const DUMMY_RESULT = {
-    originalText: "Sweden, famously, has done none of the above. It has kept elementary schools and businesses open and relied on citizens’ sense of social responsibility to curb the spread of the virus. This has made it a pariah in its neighborhood -- and a potential model for the rest of the world. Many are looking to the so-called Swedish model as a potential path forward.",
-    plagiarizedSegments: [
-      {
-        text: "relied on citizens’ sense of social responsibility",
-        suggestion: "depended on the public's feeling of civic duty"
-      },
-      {
-        text: "pariah in its neighborhood",
-        suggestion: "an outcast among its neighbors"
-      },
-      {
-        text: "potential model for the rest of the world",
-        suggestion: "possible example for other nations"
-      }
-    ],
-    score: 98,
+// Define the structure for the API result
+interface PlagiarismResult {
+    originalText: string;
+    plagiarizedSegments: {
+        text: string;
+        suggestion: string;
+    }[];
+    score: number;
 }
-
 
 export default function PlagiarismPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [text, setText] = useState(DUMMY_RESULT.originalText);
-  const [result, setResult] = useState<typeof DUMMY_RESULT | null>(null);
+  // Dummy text removed: Initialized to empty string
+  const [text, setText] = useState(""); 
+  const [result, setResult] = useState<PlagiarismResult | null>(null);
 
   const charCount = text.length;
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
+    if (text.length < 10) return;
+    
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        setResult(DUMMY_RESULT);
+    setResult(null);
+
+    try {
+        // REPLACE THIS: Actual API call to your backend
+        // const response = await fetch('https://your-backend.hf.space/api/plagiarism', {
+        //     method: 'POST',
+        //     body: JSON.stringify({ text }),
+        //     headers: { 'Content-Type': 'application/json' }
+        // });
+        // const data = await response.json();
+        // setResult(data);
+        
+        // TEMPORARY: Empty simulation for UI testing
+        setTimeout(() => {
+            setIsLoading(false);
+        }, 1500);
+    } catch (error) {
+        console.error("Failed to check plagiarism:", error);
         setIsLoading(false);
-    }, 1500);
+    }
   };
   
   const handleReplace = (original: string, replacement: string) => {
@@ -70,13 +78,15 @@ export default function PlagiarismPage() {
 
   const renderResult = () => {
     if (!result) {
-        return <p className="text-muted-foreground">The processed text with highlights will appear here.</p>;
+        return <p className="text-muted-foreground italic">The processed text with highlights will appear here after analysis.</p>;
     }
     
     let lastIndex = 0;
     const parts = [];
 
-    const sortedSegments = [...result.plagiarizedSegments].sort((a,b) => result.originalText.indexOf(a.text) - result.originalText.indexOf(b.text));
+    const sortedSegments = [...result.plagiarizedSegments].sort(
+        (a, b) => result.originalText.indexOf(a.text) - result.originalText.indexOf(b.text)
+    );
 
     sortedSegments.forEach((segment, i) => {
       const index = result.originalText.indexOf(segment.text, lastIndex);
@@ -87,7 +97,7 @@ export default function PlagiarismPage() {
         <TooltipProvider key={i}>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <span className="bg-yellow-200/80 underline decoration-red-500 decoration-wavy underline-offset-2 cursor-pointer rounded-sm px-1">
+                    <span className="bg-yellow-200/80 underline decoration-red-500 decoration-wavy underline-offset-2 cursor-pointer rounded-sm px-1 hover:bg-yellow-300/90 transition-colors">
                         {segment.text}
                     </span>
                 </TooltipTrigger>
@@ -129,28 +139,35 @@ export default function PlagiarismPage() {
           <CardContent className="flex-grow flex flex-col space-y-4">
             <div className="flex-grow flex flex-col">
                 <Textarea
-                    placeholder="Paste your text here to check for plagiarism..."
-                    className="min-h-[300px] flex-grow resize-none text-base h-full rounded-xl shadow-inner bg-white"
+                    placeholder="Paste your content here (min 10 characters)..."
+                    className="min-h-[300px] flex-grow resize-none text-base h-full rounded-xl shadow-inner bg-white focus-visible:ring-primary"
                     style={{minHeight: 'calc(100vh - 350px)'}}
                     maxLength={50000}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                 />
                  <div className="flex justify-between items-center pt-2">
-                    <div></div>
-                    <p className="text-xs text-muted-foreground">
-                        {charCount} / 50,000 characters
+                    <p className="text-xs text-muted-foreground italic">
+                        All checks are private and secure.
+                    </p>
+                    <p className={`text-xs ${charCount > 45000 ? 'text-destructive font-bold' : 'text-muted-foreground'}`}>
+                        {charCount.toLocaleString()} / 50,000 characters
                     </p>
                 </div>
             </div>
             <div className="flex justify-end">
-              <Button onClick={handleCheck} disabled={isLoading || text.length < 10} size="lg" className="rounded-full shadow-lg hover:shadow-primary/30 transition-shadow">
+              <Button 
+                onClick={handleCheck} 
+                disabled={isLoading || text.length < 10} 
+                size="lg" 
+                className="rounded-full shadow-lg hover:shadow-primary/30 transition-all active:scale-95"
+              >
                 {isLoading ? (
                   <LoaderCircle className="animate-spin mr-2" />
                 ) : (
                   <Wand2 className="mr-2" />
                 )}
-                Check for Plagiarism
+                {isLoading ? "Analyzing..." : "Check for Plagiarism"}
               </Button>
             </div>
           </CardContent>
@@ -161,9 +178,9 @@ export default function PlagiarismPage() {
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Analysis Report</CardTitle>
             {result && (
-                <div className="flex items-center gap-4 pt-2">
+                <div className="flex items-center gap-4 pt-2 animate-in fade-in slide-in-from-top-1">
                     <CardDescription>AI Originality Score:</CardDescription>
-                    <Badge variant="default" className="text-lg rounded-md">{result.score}%</Badge>
+                    <Badge variant="default" className="text-lg rounded-md px-3">{result.score}%</Badge>
                 </div>
             )}
           </CardHeader>
@@ -172,12 +189,12 @@ export default function PlagiarismPage() {
                 <div className="flex items-center justify-center h-full">
                     <div className="text-center text-muted-foreground space-y-2">
                         <LoaderCircle className="mx-auto h-10 w-10 animate-spin text-primary"/>
-                        <p className="font-semibold">Analyzing your text...</p>
-                        <p className="text-sm">Please wait a moment.</p>
+                        <p className="font-semibold text-foreground">Analyzing your text...</p>
+                        <p className="text-sm">Scanned against our AI database.</p>
                     </div>
                 </div>
             ) : (
-                <div className="p-4 border rounded-lg h-full overflow-y-auto bg-muted/20">
+                <div className="p-4 border rounded-lg h-full overflow-y-auto bg-muted/20 min-h-[300px]">
                     {renderResult()}
                 </div>
             )}

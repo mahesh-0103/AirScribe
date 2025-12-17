@@ -59,6 +59,4 @@ The `app.py` file in the root directory serves as the FastAPI server.
 * **Adapter**: `LoRA` (Low-Rank Adaptation) located in `/model_files`.
 * **Inference Pipeline**: Dual-stage Hybrid Intelligence.
 * **Max Input**: 50,000 Characters.
-
-## 📄 License
-MIT License - Copyright (c) 2025 AirScribe.
+.
